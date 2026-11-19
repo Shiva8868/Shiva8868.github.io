@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shivam Raman Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a developer's portfolio told as an API. The hero is a live request console;
+every section below is a "resource" with its route shown in mono. Cool paper, ink, one signal-orange accent. */
+:root{
+--paper:#EEF1F3;
+--surface:#FFFFFF;
+--ink:#131B24;
+--muted:#5B6672;
+--line:#D5DBE0;
+--accent:#D9481F;
+--accent-soft:#FBE5DC;
+--code-bg:#151D27;
+--code-ink:#DCE3EA;
+--code-key:#F08A5D;
+--code-str:#9FD3B8;
+--code-num:#9DB8F5;
+--font-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+--font-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+--font-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+--radius:10px;
+color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]){
+--paper:#0F151C; --surface:#17202A; --ink:#E7ECF0; --muted:#97A3AF; --line:#28333F;
+--accent:#FF6A3D; --accent-soft:#3A2119; --code-bg:#0A0F14; color-scheme:dark;
+}
+}
+:root[data-theme="dark"]{
+--paper:#0F151C; --surface:#17202A; --ink:#E7ECF0; --muted:#97A3AF; --line:#28333F;
+--accent:#FF6A3D; --accent-soft:#3A2119; --code-bg:#0A0F14; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto} *{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.1}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--font-mono)}
+/* nav */
+nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:58px}
+.brand{font-family:var(--font-mono);font-weight:700;font-size:14px;text-decoration:none}
+.brand span{color:var(--accent)}
+.navlinks{display:flex;gap:4px;flex-wrap:wrap}
+.navlinks a{font-family:var(--font-mono);font-size:13px;text-decoration:none;color:var(--muted);padding:6px 10px;border-radius:6px}
+.navlinks a:hover{color:var(--ink);background:var(--surface)}
+.btn{font:600 14px var(--font-body);border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+@media (max-width:760px){.navlinks{display:none}}
+/* hero */
+.hero{padding:64px 0 56px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr;gap:36px}}
+.status{display:inline-flex;align-items:center;gap:8px;font:500 13px var(--font-mono);color:var(--muted);border:1px solid var(--line);background:var(--surface);padding:5px 12px;border-radius:99px}
+.status i{width:8px;height:8px;border-radius:50%;background:#2DA66B;box-shadow:0 0 0 3px color-mix(in srgb,#2DA66B 25%,transparent)}
+.hero h1{font-size:clamp(48px,7.4vw,92px);font-weight:800;letter-spacing:-.035em;margin:20px 0 8px}
+.hero h1 .slash{color:var(--accent)}
+.role{font-family:var(--font-mono);font-size:clamp(15px,1.7vw,18px);color:var(--muted);margin:0 0 20px}
+.role b{color:var(--ink);font-weight:500}
+.lede{font-size:18px;max-width:52ch;margin:0 0 28px}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+/* console */
+.console{background:var(--code-bg);color:var(--code-ink);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,20,30,.55);font-family:var(--font-mono);font-size:13.5px}
+.console-bar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #26313D}
+.console-bar .dot{width:10px;height:10px;border-radius:50%;background:#3A4652}
+.console-bar .ttl{margin-left:8px;color:#8593A1;font-size:12px}
+.endpoints{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 0}
+.ep{font:500 12px var(--font-mono);background:#1F2934;color:#B7C2CC;border:1px solid #2D3946;border-radius:6px;padding:5px 9px;cursor:pointer}
+.ep b{color:#7FD1A8;font-weight:700;margin-right:4px}
+.ep[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.ep[aria-pressed="true"] b{color:#fff}
+.req{padding:14px 14px 4px;color:#8593A1}
+.req .m{color:#7FD1A8}
+.req .u{color:#E7ECF0}
+.resp{padding:6px 14px 18px;min-height:300px;max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0;line-height:1.55}
+.resp .k{color:var(--code-key)} .resp .s{color:var(--code-str)} .resp .n{color:var(--code-num)} .resp .c{color:#6B7986}
+.caret{display:inline-block;width:8px;height:15px;background:var(--accent);vertical-align:-2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.console-foot{display:flex;justify-content:space-between;padding:8px 14px;border-top:1px solid #26313D;color:#6B7986;font-size:11.5px}
+.console-foot .ok{color:#7FD1A8}
+/* recruiter strip */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.fact{padding:18px 20px;border-right:1px solid var(--line)}
+.fact:last-child{border-right:0}
+.fact small{display:block;font:500 11px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.fact strong{font-family:var(--font-display);font-size:19px;font-weight:700;line-height:1.25;display:block}
+@media (max-width:820px){.facts{grid-template-columns:1fr 1fr}.fact:nth-child(2){border-right:0}.fact:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:420px){.facts{grid-template-columns:1fr}.fact{border-right:0;border-bottom:1px solid var(--line)}.fact:last-child{border-bottom:0}}
+/* sections */
+section{padding:72px 0 8px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.sec-head h2{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.025em}
+.route{font:500 13px var(--font-mono);color:var(--muted)}
+.route b{color:var(--accent);font-weight:700}
+/* skills */
+.skill-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.chip{font:500 13px var(--font-mono);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:99px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.skill-group{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;transition:opacity .2s}
+.skill-group.dim{opacity:.32}
+.skill-group h3{font-size:15px;font-family:var(--font-mono);font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between}
+.skill-group h3 span{color:var(--muted);font-weight:400}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font:500 12.5px var(--font-mono);padding:4px 9px;border-radius:6px;background:var(--paper);border:1px solid var(--line);cursor:pointer;color:var(--ink)}
+.tag:hover,.tag.hit{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.hint{font-size:14px;color:var(--muted);margin:14px 0 0}
+/* experience */
+.timeline{display:grid;gap:0}
+.job{display:grid;grid-template-columns:200px 1fr;gap:28px;padding:26px 0;border-bottom:1px solid var(--line)}
+.job:last-child{border-bottom:0}
+@media (max-width:700px){.job{grid-template-columns:1fr;gap:8px}}
+.when{font:500 13px var(--font-mono);color:var(--muted)}
+.when .now{display:inline-block;margin-top:6px;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px}
+.job h3{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.org{color:var(--muted);margin:4px 0 12px}
+.job ul{margin:0;padding-left:18px;display:grid;gap:6px;max-width:70ch}
+.job li::marker{color:var(--accent)}
+/* projects */
+.proj-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.projects{display:grid;gap:16px}
+.proj{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .2s,opacity .2s}
+.proj.hidden{display:none}
+.proj.hit{border-color:var(--accent)}
+.proj-top{display:grid;grid-template-columns:64px 1fr auto;gap:20px;align-items:start;padding:24px;cursor:pointer;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit}
+@media (max-width:640px){.proj-top{grid-template-columns:1fr;gap:10px}}
+.idx{font:800 34px/1 var(--font-display);color:var(--accent)}
+.proj h3{font-size:clamp(22px,2.6vw,28px);font-weight:800;letter-spacing:-.015em}
+.kind{color:var(--muted);margin:4px 0 12px}
+.stack{display:flex;gap:6px;flex-wrap:wrap}
+.stack span{font:500 12px var(--font-mono);padding:3px 8px;border-radius:5px;border:1px solid var(--line);background:var(--paper)}
+.toggle{font:500 13px var(--font-mono);color:var(--muted);white-space:nowrap;padding-top:6px}
+.toggle::after{content:" +";color:var(--accent);font-weight:700}
+.proj[data-open="true"] .toggle::after{content:" −"}
+.proj-body{display:none;padding:0 24px 26px;grid-template-columns:1fr 1fr;gap:28px;border-top:1px dashed var(--line);padding-top:22px;margin:0 24px;padding-left:0;padding-right:0}
+.proj[data-open="true"] .proj-body{display:grid}
+@media (max-width:820px){.proj-body{grid-template-columns:1fr !important}}
+.proj-body ul{margin:0;padding-left:18px;display:grid;gap:8px}
+.proj-body li::marker{color:var(--accent)}
+.flow-label{font:500 11px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.flow{display:flex;flex-direction:column;gap:0}
+.node{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:10px 12px;font:500 13px var(--font-mono)}
+.node small{display:block;color:var(--muted);font-family:var(--font-body);font-size:12.5px;margin-top:2px}
+.node.key{border-color:var(--accent);background:var(--accent-soft)}
+.arrow{height:20px;margin-left:22px;border-left:2px solid var(--line);position:relative}
+.arrow::after{content:"";position:absolute;left:-6px;bottom:-2px;border:5px solid transparent;border-top:7px solid var(--line)}
+/* education */
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.edu-grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.card .yrs{font:500 13px var(--font-mono);color:var(--accent)}
+.card h3{font-size:21px;font-weight:700;margin:6px 0 4px}
+.card p{margin:0;color:var(--muted)}
+.certs{margin-top:16px;display:grid;gap:10px}
+.cert{display:flex;gap:14px;align-items:baseline;padding:14px 18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);flex-wrap:wrap}
+.cert .mono{font-size:12px;color:var(--muted);min-width:96px}
+/* contact */
+.contact{margin:72px 0 0;background:var(--ink);color:var(--paper);padding:56px 0}
+.contact h2{font-size:clamp(34px,5vw,58px);font-weight:800;letter-spacing:-.03em;max-width:16ch}
+.contact h2 span{color:var(--accent)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end}
+@media (max-width:820px){.contact-grid{grid-template-columns:1fr}}
+.rows{display:grid;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid color-mix(in srgb,var(--paper) 22%,transparent);border-radius:10px;padding:12px 14px;flex-wrap:wrap}
+.row .lbl{font:500 11px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;opacity:.65;display:block}
+.row .val{font-family:var(--font-mono);font-size:15px;word-break:break-all}
+.copy{font:600 12px var(--font-mono);background:var(--accent);color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;min-width:70px}
+.copy.done{background:#2DA66B}
+.row a.copy{text-decoration:none;text-align:center}
+footer{background:var(--ink);color:color-mix(in srgb,var(--paper) 55%,transparent);font:12px var(--font-mono);padding:0 0 28px}
+footer .wrap{border-top:1px solid color-mix(in srgb,var(--paper) 15%,transparent);padding-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+/* load sequence: visible at rest, gentle rise */
+.rise{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+.rise.d1{animation-delay:.06s}.rise.d2{animation-delay:.12s}.rise.d3{animation-delay:.18s}.rise.d4{animation-delay:.24s}
+@keyframes rise{from{transform:translateY(10px)}to{transform:none}}
+</style>
+</head>
+<body>
+<nav aria-label="Sections">
+<div class="wrap">
+<a class="brand" href="#top">shivam<span>.</span>raman</a>
+<div class="navlinks">
+<a href="#skills">/skills</a>
+<a href="#experience">/experience</a>
+<a href="#projects">/projects</a>
+<a href="#education">/education</a>
+</div>
+<a class="btn" href="#contact">Contact</a>
+</div>
+</nav>
+<header class="hero" id="top">
+<div class="wrap">
+<div>
+<span class="status rise"><i></i>Web Developer Executive at Prontosys</span>
+<h1 class="rise d1">Shivam<br>Raman<span class="slash">/</span></h1>
+<p class="role rise d2"><b>Full Stack Developer</b> · MERN · MCA graduate</p>
+<p class="lede rise d3">I build RESTful APIs with Node.js and Express, responsive interfaces in React, and real-time data systems in Python, from a movie booking platform to a Redis-powered fraud detector.</p>
+<div class="cta rise d4">
+<a class="btn" href="#projects">See projects</a>
+<a class="btn ghost" href="https://github.com/Shivam8868">GitHub ↗</a>
+</div>
+</div>
+<div class="console rise d2" aria-label="Interactive API console">
+<div class="console-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="ttl">portfolio console · try an endpoint</span></div>
+<div class="endpoints" role="group" aria-label="Endpoints">
+<button class="ep" id="ep-profile" data-ep="profile" aria-pressed="true"><b>GET</b>/profile</button>
+<button class="ep" id="ep-stack" data-ep="stack" aria-pressed="false"><b>GET</b>/stack</button>
+<button class="ep" id="ep-projects" data-ep="projects" aria-pressed="false"><b>GET</b>/projects</button>
+<button class="ep" id="ep-hire" data-ep="hire" aria-pressed="false"><b>GET</b>/why-hire</button>
+</div>
+<div class="req">$ curl <span class="m">-X GET</span> <span class="u" id="req-url">/api/v1/profile</span></div>
+<pre class="resp" id="resp" aria-live="polite"></pre>
+<div class="console-foot"><span class="ok" id="resp-status">200 OK</span><span id="resp-time">application/json</span></div>
+</div>
+</div>
+</header>
+<div class="wrap">
+<div class="facts" aria-label="At a glance">
+<div class="fact"><small>Current role</small><strong>Web Developer Executive, Prontosys</strong></div>
+<div class="fact"><small>Core stack</small><strong>MongoDB · Express · React · Node</strong></div>
+<div class="fact"><small>Education</small><strong>MCA, NIMS University (2026)</strong></div>
+<div class="fact"><small>Based in</small><strong>Muzaffarnagar, UP, India</strong></div>
+</div>
+</div>
+<main>
+<section id="skills">
+<div class="wrap">
+<div class="sec-head"><h2>Skills</h2><span class="route"><b>GET</b> /skills</span></div>
+<div class="skill-filter" role="group" aria-label="Filter skill groups">
+<button class="chip" id="sk-all" data-cat="all" aria-pressed="true">All</button>
+<button class="chip" id="sk-web" data-cat="web" aria-pressed="false">Web / MERN</button>
+<button class="chip" id="sk-data" data-cat="data" aria-pressed="false">Data &amp; ML</button>
+<button class="chip" id="sk-sys" data-cat="sys" aria-pressed="false">Systems &amp; tools</button>
+</div>
+<div class="skill-grid" id="skill-grid"></div>
+<p class="hint">Click any skill to see which projects use it.</p>
+</div>
+</section>
+<section id="experience">
+<div class="wrap">
+<div class="sec-head"><h2>Experience</h2><span class="route"><b>GET</b> /experience</span></div>
+<div class="timeline">
+<article class="job">
+<div class="when">Aug 2026 – Present<br><span class="now">CURRENT</span></div>
+<div>
+<h3>Web Developer Executive</h3>
+<p class="org">Prontosys</p>
+</div>
+</article>
+<article class="job">
+<div class="when">Feb 2026 – May 2026<br>4 months</div>
+<div>
+<h3>Full Stack Web Developer Intern</h3>
+<p class="org">Totally Optimised Solutions · Haridwar, Uttarakhand</p>
+<ul>
+<li>Developed and maintained backend services and RESTful APIs using Node.js and Express.js for MERN stack applications.</li>
+<li>Built responsive React.js frontend components for e-commerce applications and corporate websites.</li>
+<li>Collaborated with cross-functional teams using Git version control to deliver modular, maintainable code.</li>
+<li>Debugged, tested and optimized application features across the frontend and backend.</li>
+<li>Gained end-to-end product development experience, from UI components to API services.</li>
+</ul>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section id="projects">
+<div class="wrap">
+<div class="sec-head"><h2>Projects</h2><span class="route"><b>GET</b> /projects?filter=</span></div>
+<div class="proj-filter" role="group" aria-label="Filter projects">
+<button class="chip" id="pf-all" data-pf="all" aria-pressed="true">All</button>
+<button class="chip" id="pf-web" data-pf="web" aria-pressed="false">Web apps</button>
+<button class="chip" id="pf-rt" data-pf="realtime" aria-pressed="false">Real-time</button>
+<button class="chip" id="pf-ml" data-pf="ml" aria-pressed="false">Machine learning</button>
+</div>
+<div class="projects" id="projects-list"></div>
+</div>
+</section>
+<section id="education">
+<div class="wrap">
+<div class="sec-head"><h2>Education</h2><span class="route"><b>GET</b> /education</span></div>
+<div class="edu-grid">
+<div class="card"><span class="yrs">2024 – Aug 2026</span><h3>Master of Computer Applications</h3><p>Computer Science · NIMS University, Jaipur, Rajasthan</p></div>
+<div class="card"><span class="yrs">2021 – 2024</span><h3>Bachelor of Computer Applications</h3><p>Shri Ram College, Muzaffarnagar, Uttar Pradesh</p></div>
+</div>
+<div class="certs">
+<div class="cert"><span class="mono">2023</span><strong>MERN Stack Bootcamp</strong><span style="color:var(--muted)">Hashed Bit Innovations</span></div>
+<div class="cert"><span class="mono">2025</span><strong>Google Cloud Community Day</strong><span style="color:var(--muted)">Attendee · GDG Jaipur</span></div>
+</div>
+</div>
+</section>
+</main>
+<section class="contact" id="contact">
+<div class="wrap contact-grid">
+<h2>Let's build something <span>useful</span>.</h2>
+<div class="rows">
+<div class="row"><div><span class="lbl">Email</span><span class="val">ramansurendra007@gmail.com</span></div><button class="copy" id="copy-email" data-copy="ramansurendra007@gmail.com">Copy</button></div>
+<div class="row"><div><span class="lbl">Phone</span><span class="val">+91 82187 81006</span></div><button class="copy" id="copy-phone" data-copy="+918218781006">Copy</button></div>
+<div class="row"><div><span class="lbl">GitHub</span><span class="val">github.com/Shivam8868</span></div><a class="copy" href="https://github.com/Shivam8868">Open ↗</a></div>
+</div>
+</div>
+</section>
+<footer><div class="wrap"><span>© 2026 Shivam Raman</span><span>Muzaffarnagar, UP, India</span></div></footer>
+<script>
+const SKILLS = [
+{name:"Languages", cat:"web", items:["JavaScript (ES6+)","Python","HTML5","CSS3"]},
+{name:"Frontend", cat:"web", items:["React.js","Responsive Web Design"]},
+{name:"Backend", cat:"web", items:["Node.js","Express.js","RESTful APIs","Microservices"]},
+{name:"Databases", cat:"sys", items:["MongoDB","Redis (Pub/Sub)","SQLite3"]},
+{name:"Data & ML", cat:"data", items:["Pandas","Machine Learning","Time-Series Analysis","Anomaly Detection","Streamlit"]},
+{name:"Tools", cat:"sys", items:["Git","GitHub","npm","VS Code"]},
+{name:"Concepts", cat:"sys", items:["OOP","Distributed Systems","Real-Time Data Streaming"]}
+];
+const PROJECTS = [
+{
+id:"ticketverse", title:"TicketVerse", kind:"Online movie ticket booking platform", tags:["web"],
+stack:["Node.js","Express.js","JavaScript","RESTful APIs"],
+points:[
+"Built a ticket booking platform with secure routing, role-based access control and full CRUD functionality.",
+"Integrated third-party APIs to fetch dynamic movie data and real-time theater schedule updates.",
+"Implemented backend logic for ticket reservation workflows, payment handling and booking management."
+],
+flow:[["Client","Browse movies, pick seats"],["Express API","Routing + role-based access",1],["Third-party movie APIs","Movie data, showtimes"],["Booking service","Reserve → pay → confirm"]]
+},
+{
+id:"finguard", title:"FinGuard", kind:"Real-time fraud detection system", tags:["realtime"],
+stack:["Python","Redis (Pub/Sub)","SQLite3","Streamlit","Real-Time Data Streaming"],
+points:[
+"Designed a real-time transaction monitoring system using Redis Pub/Sub for event streaming.",
+"Developed an interactive Streamlit dashboard to visualize live transactions and trigger fraud alerts.",
+"Implemented a SQLite3 storage layer for transaction history management and fast lookups."
+],
+flow:[["Transaction stream","Incoming events"],["Redis Pub/Sub","Event channel",1],["Fraud checks","Flag suspicious activity"],["SQLite3 + Streamlit","History store, live alert dashboard"]]
+},
+{
+id:"iiot", title:"Predictive Analytics for Industrial IoT", kind:"AI-driven platform for sensor monitoring", tags:["ml","realtime"],
+stack:["Python","Pandas","Machine Learning","Time-Series Analysis","Anomaly Detection","Streamlit"],
+points:[
+"Designed a predictive analytics platform to continuously monitor industrial sensor data streams.",
+"Applied machine learning models and Pandas-based time-series analysis for anomaly detection and fault prediction.",
+"Delivered a Streamlit dashboard surfacing predictive maintenance insights and real-time equipment alerts."
+],
+flow:[["Sensor data streams","Industrial equipment"],["Pandas time-series","Clean, window, feature",0],["ML models","Anomaly + fault prediction",1],["Streamlit dashboard","Maintenance insights, alerts"]]
+}
+];
+// Skills that map to project stacks (for click-to-highlight)
+const ALIAS = {"RESTful APIs":["RESTful APIs"],"JavaScript (ES6+)":["JavaScript"],"Machine Learning":["Machine Learning"]};
+/* ---------- skills ---------- */
+const grid = document.getElementById("skill-grid");
+grid.innerHTML = SKILLS.map(g => `
+<div class="skill-group" data-cat="${g.cat}">
+<h3>${g.name}<span>${g.items.length}</span></h3>
+<div class="tags">${g.items.map(s=>`<button class="tag" data-skill="${s}">${s}</button>`).join("")}</div>
+</div>`).join("");
+document.querySelectorAll("[data-cat]").forEach(b=>{
+if(b.tagName!=="BUTTON") return;
+b.addEventListener("click",()=>{
+document.querySelectorAll(".skill-filter .chip").forEach(c=>c.setAttribute("aria-pressed", c===b));
+const cat=b.dataset.cat;
+document.querySelectorAll(".skill-group").forEach(g=>g.classList.toggle("dim", cat!=="all" && g.dataset.cat!==cat));
+});
+});
+function usesSkill(p, skill){
+const keys = ALIAS[skill] || [skill.replace(/ \(.*\)/,"")];
+return p.stack.some(s => keys.some(k => s.toLowerCase().includes(k.toLowerCase())));
+}
+grid.addEventListener("click",e=>{
+const t=e.target.closest(".tag"); if(!t) return;
+const skill=t.dataset.skill;
+const matches=PROJECTS.filter(p=>usesSkill(p,skill));
+document.querySelectorAll(".tag").forEach(x=>x.classList.toggle("hit", x===t));
+setFilter("all");
+document.querySelectorAll(".proj").forEach(el=>{
+const hit = matches.some(m=>m.id===el.dataset.id);
+el.classList.toggle("hit", hit);
+if(hit) el.dataset.open="true";
+});
+const msg = matches.length ? `${skill} is used in ${matches.map(m=>m.title).join(", ")}. Highlighted below.` : `${skill} is applied in day-to-day work rather than a listed project.`;
+document.querySelector("#skills .hint").textContent = msg;
+if(matches.length) document.getElementById("projects").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto":"smooth"});
+});
+/* ---------- projects ---------- */
+const list=document.getElementById("projects-list");
+list.innerHTML = PROJECTS.map((p,i)=>`
+<article class="proj" data-id="${p.id}" data-tags="${p.tags.join(" ")}" data-open="${i===0}">
+<button class="proj-top" id="proj-btn-${p.id}" aria-expanded="${i===0}">
+<span class="idx">0${i+1}</span>
+<span>
+<h3>${p.title}</h3>
+<p class="kind">${p.kind}</p>
+<span class="stack">${p.stack.map(s=>`<span>${s}</span>`).join("")}</span>
+</span>
+<span class="toggle">details</span>
+</button>
+<div class="proj-body">
+<div><div class="flow-label">What I built</div><ul>${p.points.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+<div><div class="flow-label">How it flows</div><div class="flow">${
+p.flow.map((n,j)=>`${j?'<div class="arrow" aria-hidden="true"></div>':''}<div class="node${n[2]?' key':''}">${n[0]}<small>${n[1]}</small></div>`).join("")
+}</div></div>
+</div>
+</article>`).join("");
+list.addEventListener("click",e=>{
+const b=e.target.closest(".proj-top"); if(!b) return;
+const card=b.closest(".proj");
+const open=card.dataset.open!=="true";
+card.dataset.open=open; b.setAttribute("aria-expanded",open);
+});
+function setFilter(f){
+document.querySelectorAll(".proj-filter .chip").forEach(c=>c.setAttribute("aria-pressed", c.dataset.pf===f));
+document.querySelectorAll(".proj").forEach(el=>el.classList.toggle("hidden", f!=="all" && !el.dataset.tags.split(" ").includes(f)));
+}
+document.querySelectorAll("[data-pf]").forEach(b=>b.addEventListener("click",()=>{
+document.querySelectorAll(".proj").forEach(el=>el.classList.remove("hit"));
+setFilter(b.dataset.pf);
+}));
+/* ---------- API console ---------- */
+const RESPONSES = {
+profile:{
+name:"Shivam Raman",
+role:"Full Stack Developer (MERN)",
+current:{title:"Web Developer Executive", company:"Prontosys", since:"Aug 2026"},
+degree:"MCA, NIMS University",
+location:"Muzaffarnagar, UP, India",
+github:"github.com/Shivam8868"
+},
+stack:{
+frontend:["React.js","HTML5","CSS3","Responsive Web Design"],
+backend:["Node.js","Express.js","RESTful APIs","Microservices"],
+databases:["MongoDB","Redis Pub/Sub","SQLite3"],
+data_ml:["Python","Pandas","Streamlit","Time-Series","Anomaly Detection"]
+},
+projects:PROJECTS.map(p=>({name:p.title, type:p.kind, stack:p.stack.slice(0,3)})),
+hire:{
+end_to_end:"UI components to API services, shipped during a 4-month full stack internship",
+real_time:"Event streaming with Redis Pub/Sub (FinGuard)",
+data_skills:"ML + time-series anomaly detection (Industrial IoT)",
+collaboration:"Cross-functional teams, Git-based workflows",
+contact:"ramansurendra007@gmail.com"
+}
+};
+const resp=document.getElementById("resp");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let typing=null;
+function highlight(json){
+const esc=json.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+return esc.replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?/g,(m,str,colon,bool)=>{
+if(str) return colon ? `<span class="k">${str}</span>${colon}` : `<span class="s">${str}</span>`;
+return `<span class="n">${m}</span>`;
+});
+}
+function show(ep){
+const json=JSON.stringify(RESPONSES[ep],null,2);
+document.getElementById("req-url").textContent = "/api/v1/" + (ep==="hire"?"why-hire":ep);
+const ms = 18 + Math.floor(Math.random()*30);
+document.getElementById("resp-time").textContent = `${ms} ms · application/json`;
+clearInterval(typing);
+if(reduce){ resp.innerHTML = highlight(json); return; }
+let i=0; const step=Math.max(6, Math.ceil(json.length/45));
+typing=setInterval(()=>{
+i=Math.min(json.length,i+step);
+resp.innerHTML = highlight(json.slice(0,i)) + (i<json.length?'<span class="caret"></span>':'');
+if(i>=json.length) clearInterval(typing);
+},16);
+}
+document.querySelectorAll(".ep").forEach(b=>b.addEventListener("click",()=>{
+document.querySelectorAll(".ep").forEach(x=>x.setAttribute("aria-pressed", x===b));
+show(b.dataset.ep);
+}));
+resp.innerHTML = highlight(JSON.stringify(RESPONSES.profile,null,2));
+/* ---------- copy ---------- */
+document.querySelectorAll("button.copy").forEach(b=>b.addEventListener("click",async()=>{
+try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent="Copied"; b.classList.add("done"); }
+catch(e){ b.textContent="Select text"; }
+setTimeout(()=>{ b.textContent="Copy"; b.classList.remove("done"); },1600);
+}));
+</script>
+</body>
+</html>
